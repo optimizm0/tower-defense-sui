@@ -12,11 +12,11 @@ module tower_defense::game {
     // === Constants ===
     const BOSS_LEVEL_INTERVAL: u64 = 10;
     const UPGRADE_LEVEL_INTERVAL: u64 = 25;
-    const MAX_UPGRADES: u64 = 5;
+    const MAX_UPGRADES: u64 = 4;
     const BASE_MONSTER_HP: u64 = 120;
     const BASE_MONSTER_DAMAGE: u64 = 25;
     const LEVEL_SCALING_FACTOR: u64 = 100; // Pour le calcul des gains
-    const MONSTER_SCALING_RATE: u64 = 25; // +25% par niveau (rapide)
+    const MONSTER_SCALING_RATE: u64 = 10 ; // +10% par niveau 
     
     // === Error codes ===
     const EInsufficientFunds: u64 = 1;
@@ -319,7 +319,7 @@ module tower_defense::game {
         }
     }
 
-    /// Génère un monstre pour un niveau donné (progression rapide)
+    /// Génère un monstre pour un niveau donné 
     fun generate_monster_for_level(
         level: u64, 
         is_boss: bool, 
@@ -328,7 +328,6 @@ module tower_defense::game {
     ): MonsterStats {
         let mut gen = random::new_generator(r, ctx);
         
-        // Progression très agressive : +25% par niveau
         let base_multiplier = 100 + (level - 1) * MONSTER_SCALING_RATE;
         let boss_multiplier = if (is_boss) 400 else 100; // Boss 4x plus forts
         
@@ -398,9 +397,8 @@ module tower_defense::game {
             return (0, bet_amount) // Maison garde tout
         };
 
-        // Formule agressive : paiement = bet * (1 + levels/200) 
-        // Divisé par 200 au lieu de 100 pour réduire les gains
-        let base_multiplier = 100 + levels_completed / 2; // 0.5% par niveau
+        // Formule agressive : paiement = bet * (1 + levels/50) 
+        let base_multiplier = 100 + levels_completed ; // 1% par niveau
         let gross_payout = (bet_amount * base_multiplier) / 100;
         
         // Appliquer house edge
@@ -422,7 +420,7 @@ module tower_defense::game {
 
     /// Calcule le coût d'amélioration
     fun calculate_upgrade_cost(upgrades_used: u64): u64 {
-        (upgrades_used + 1) * 1000 // Coût croissant: 1000, 2000, 3000, etc.
+        (upgrades_used + 1) * 100 // Coût croissant: 100, 200, 300, etc.
     }
 
     /// Passe au niveau suivant
