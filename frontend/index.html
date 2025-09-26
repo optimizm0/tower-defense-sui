@@ -1,1 +1,764 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tower Defense - Sui Blockchain</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+
+        .game-area {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .panel h3 {
+            margin-bottom: 15px;
+            color: #ffd700;
+            font-size: 1.3rem;
+        }
+
+        .hero-stats, .monster-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .stat-bar {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-label {
+            font-weight: bold;
+        }
+
+        .stat-value {
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        .hp-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .hp-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ef4444, #f97316, #eab308);
+            transition: width 0.3s ease;
+        }
+
+        .battle-area {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 400px;
+        }
+
+        .level-info {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .level-number {
+            font-size: 2rem;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        .monster-display {
+            font-size: 4rem;
+            margin: 20px 0;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #4ade80, #16a34a);
+        }
+
+        .btn-warning {
+            background: linear-gradient(45deg, #fbbf24, #f59e0b);
+        }
+
+        .bet-section {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .upgrade-section {
+            display: none;
+            background: rgba(255, 215, 0, 0.1);
+            border: 2px solid #ffd700;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .upgrade-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .log {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 2px 0;
+        }
+
+        .log-success { color: #4ade80; }
+        .log-error { color: #ef4444; }
+        .log-warning { color: #fbbf24; }
+        .log-info { color: #60a5fa; }
+
+        .wallet-status {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .connection-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .connected { background-color: #4ade80; }
+        .disconnected { background-color: #ef4444; }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4ade80, #fbbf24);
+            transition: width 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .game-area {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏰 Tower Defense</h1>
+            <p class="subtitle">Pariez sur votre survie • Sui Blockchain</p>
+        </div>
+
+        <div class="wallet-status">
+            <span class="connection-dot disconnected" id="connectionStatus"></span>
+            <span id="walletAddress">Wallet non connecté</span>
+            <button class="btn" id="connectWallet" style="margin-left: 15px;">Connecter Wallet</button>
+        </div>
+
+        <div class="game-area">
+            <!-- Panneau Héros -->
+            <div class="panel">
+                <h3>🛡️ Votre Héros</h3>
+                <div class="hero-stats">
+                    <div class="stat-bar">
+                        <span class="stat-label">❤️ HP</span>
+                        <span class="stat-value" id="heroHp">0/0</span>
+                    </div>
+                    <div class="hp-bar">
+                        <div class="hp-fill" id="heroHpBar" style="width: 100%;"></div>
+                    </div>
+                    <div class="stat-bar">
+                        <span class="stat-label">⚔️ Dégâts</span>
+                        <span class="stat-value" id="heroDamage">0</span>
+                    </div>
+                    <div class="stat-bar">
+                        <span class="stat-label">⚡ Vitesse</span>
+                        <span class="stat-value" id="heroSpeed">0</span>
+                    </div>
+                    <div class="stat-bar">
+                        <span class="stat-label">🛡️ Résistance</span>
+                        <span class="stat-value" id="heroResistance">0%</span>
+                    </div>
+                    <div class="stat-bar">
+                        <span class="stat-label">⬆️ Améliorations</span>
+                        <span class="stat-value" id="heroUpgrades">0/5</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Zone de Combat -->
+            <div class="panel">
+                <div class="battle-area">
+                    <div class="level-info">
+                        <div class="level-number" id="currentLevel">Niveau 0</div>
+                        <div id="bossIndicator" style="color: #ff6b6b; font-weight: bold; display: none;">
+                            👑 BOSS FIGHT 👑
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="levelProgress" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="monster-display" id="monsterEmoji">🏁</div>
+                    
+                    <div class="monster-stats">
+                        <div class="stat-bar">
+                            <span class="stat-label">👹 Monstre HP</span>
+                            <span class="stat-value" id="monsterHp">0/0</span>
+                        </div>
+                        <div class="hp-bar">
+                            <div class="hp-fill" id="monsterHpBar" style="width: 100%;"></div>
+                        </div>
+                        <div class="stat-bar">
+                            <span class="stat-label">💥 Dégâts Monstre</span>
+                            <span class="stat-value" id="monsterDamage">0</span>
+                        </div>
+                    </div>
+
+                    <div class="controls">
+                        <button class="btn btn-primary" id="fightBtn" disabled>⚔️ Combattre</button>
+                        <button class="btn btn-warning" id="retreatBtn" disabled>🏃 Battre en Retraite</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panneau Contrôles -->
+            <div class="panel">
+                <h3>🎮 Contrôles</h3>
+                
+                <div class="bet-section" id="betSection">
+                    <div class="input-group">
+                        <label>💰 Montant du Pari (SUI)</label>
+                        <input type="number" id="betAmount" placeholder="1000" min="100" step="100">
+                    </div>
+                    <div class="input-group">
+                        <label>🎯 Niveau Cible</label>
+                        <input type="number" id="targetLevel" placeholder="10" min="1" max="100">
+                    </div>
+                    <button class="btn btn-primary" id="startGameBtn">🚀 Commencer le Jeu</button>
+                </div>
+
+                <div class="upgrade-section" id="upgradeSection">
+                    <h4 style="color: #ffd700; margin-bottom: 10px;">⬆️ Améliorations Disponibles</h4>
+                    <p style="font-size: 0.9rem; margin-bottom: 10px;">Coût: <span id="upgradeCost">0</span> SUI</p>
+                    <div class="upgrade-buttons">
+                        <button class="btn" id="upgradeHp">❤️ +50 HP</button>
+                        <button class="btn" id="upgradeDamage">⚔️ +10 Dégâts</button>
+                        <button class="btn" id="upgradeSpeed">⚡ +1 Vitesse</button>
+                        <button class="btn" id="upgradeResistance">🛡️ +5% Rés.</button>
+                    </div>
+                </div>
+
+                <div class="stat-bar" style="margin: 15px 0;">
+                    <span class="stat-label">💎 Gains Potentiels</span>
+                    <span class="stat-value" id="potentialEarnings">0 SUI</span>
+                </div>
+
+                <div class="stat-bar">
+                    <span class="stat-label">🏆 Niveaux Complétés</span>
+                    <span class="stat-value" id="levelsCompleted">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>📋 Journal de Combat</h3>
+            <div class="log" id="gameLog">
+                <div class="log-entry log-info">🎮 Connectez votre wallet pour commencer...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // État du jeu
+        let gameState = {
+            connected: false,
+            gameActive: false,
+            currentLevel: 0,
+            hero: {
+                hp: 0,
+                maxHp: 0,
+                damage: 0,
+                speed: 0,
+                resistance: 0,
+                upgrades: 0
+            },
+            monster: {
+                hp: 0,
+                maxHp: 0,
+                damage: 0,
+                isBoss: false
+            },
+            betAmount: 0,
+            targetLevel: 0,
+            levelsCompleted: 0
+        };
+
+        // Simulation des interactions blockchain
+        class MockSuiWallet {
+            constructor() {
+                this.connected = false;
+                this.address = null;
+                this.balance = 50000; // 50k SUI pour test
+            }
+
+            async connect() {
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        this.connected = true;
+                        this.address = '0x' + Math.random().toString(16).substr(2, 40);
+                        resolve({ address: this.address });
+                    }, 1000);
+                });
+            }
+
+            async getBalance() {
+                return this.balance;
+            }
+
+            async signTransaction(tx) {
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        resolve({ success: true, tx: tx });
+                    }, 2000);
+                });
+            }
+        }
+
+        const wallet = new MockSuiWallet();
+
+        // Fonctions utilitaires
+        function log(message, type = 'info') {
+            const logElement = document.getElementById('gameLog');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+            logElement.appendChild(entry);
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function updateUI() {
+            // Mise à jour des stats du héros
+            document.getElementById('heroHp').textContent = `${gameState.hero.hp}/${gameState.hero.maxHp}`;
+            document.getElementById('heroDamage').textContent = gameState.hero.damage;
+            document.getElementById('heroSpeed').textContent = gameState.hero.speed;
+            document.getElementById('heroResistance').textContent = `${gameState.hero.resistance}%`;
+            document.getElementById('heroUpgrades').textContent = `${gameState.hero.upgrades}/5`;
+            
+            // Barre de HP du héros
+            const heroHpPercent = gameState.hero.maxHp > 0 ? (gameState.hero.hp / gameState.hero.maxHp) * 100 : 0;
+            document.getElementById('heroHpBar').style.width = `${heroHpPercent}%`;
+
+            // Mise à jour du niveau
+            document.getElementById('currentLevel').textContent = `Niveau ${gameState.currentLevel}`;
+            document.getElementById('levelsCompleted').textContent = gameState.levelsCompleted;
+
+            // Mise à jour des stats du monstre
+            document.getElementById('monsterHp').textContent = `${gameState.monster.hp}/${gameState.monster.maxHp}`;
+            document.getElementById('monsterDamage').textContent = gameState.monster.damage;
+
+            // Barre de HP du monstre
+            const monsterHpPercent = gameState.monster.maxHp > 0 ? (gameState.monster.hp / gameState.monster.maxHp) * 100 : 0;
+            document.getElementById('monsterHpBar').style.width = `${monsterHpPercent}%`;
+
+            // Indicateur de boss
+            const bossIndicator = document.getElementById('bossIndicator');
+            if (gameState.monster.isBoss) {
+                bossIndicator.style.display = 'block';
+                document.getElementById('monsterEmoji').textContent = '👑';
+            } else {
+                bossIndicator.style.display = 'none';
+                const monsters = ['👹', '🧌', '👺', '🧙‍♂️', '🐉', '👻', '💀'];
+                document.getElementById('monsterEmoji').textContent = monsters[gameState.currentLevel % monsters.length];
+            }
+
+            // Gains potentiels
+            const potentialGains = calculatePotentialEarnings();
+            document.getElementById('potentialEarnings').textContent = `${potentialGains} SUI`;
+
+            // Progression du niveau
+            const progress = gameState.targetLevel > 0 ? (gameState.levelsCompleted / gameState.targetLevel) * 100 : 0;
+            document.getElementById('levelProgress').style.width = `${Math.min(progress, 100)}%`;
+
+            // Section d'amélioration
+            const upgradeSection = document.getElementById('upgradeSection');
+            if (gameState.gameActive && gameState.currentLevel % 25 === 0 && gameState.hero.upgrades < 5) {
+                upgradeSection.style.display = 'block';
+                const cost = (gameState.hero.upgrades + 1) * 1000;
+                document.getElementById('upgradeCost').textContent = cost;
+            } else {
+                upgradeSection.style.display = 'none';
+            }
+
+            // Boutons de contrôle
+            const fightBtn = document.getElementById('fightBtn');
+            const retreatBtn = document.getElementById('retreatBtn');
+            
+            if (gameState.gameActive && gameState.hero.hp > 0 && gameState.monster.hp > 0) {
+                fightBtn.disabled = false;
+                retreatBtn.disabled = false;
+            } else {
+                fightBtn.disabled = true;
+                retreatBtn.disabled = true;
+            }
+        }
+
+        function calculatePotentialEarnings() {
+            if (!gameState.gameActive || gameState.levelsCompleted === 0) return 0;
+            
+            const baseMultiplier = 100 + gameState.levelsCompleted / 2; // 0.5% par niveau
+            const grossPayout = (gameState.betAmount * baseMultiplier) / 100;
+            const houseEdge = (grossPayout * 5) / 100; // 5% house edge
+            const netPayout = Math.max(0, grossPayout - houseEdge);
+            const maxPayout = (gameState.betAmount * 150) / 100; // Cap à 150%
+            
+            return Math.min(netPayout, maxPayout).toFixed(0);
+        }
+
+        function generateHeroStats() {
+            return {
+                hp: 60 + Math.floor(Math.random() * 20),
+                maxHp: 0, // Sera défini après
+                damage: 10 + Math.floor(Math.random() * 10),
+                speed: 1,
+                resistance: Math.floor(Math.random() * 5),
+                upgrades: 0
+            };
+        }
+
+        function generateMonster(level) {
+            const isBoss = level % 10 === 0;
+            const baseMultiplier = 100 + (level - 1) * 25; // +25% par niveau
+            const bossMultiplier = isBoss ? 400 : 100;
+            
+            const hp = Math.floor((120 * baseMultiplier * bossMultiplier) / 10000);
+            const damage = Math.floor((25 * baseMultiplier * bossMultiplier) / 10000);
+
+            return {
+                hp: hp,
+                maxHp: hp,
+                damage: damage,
+                isBoss: isBoss
+            };
+        }
+
+        function simulateCombat() {
+            let heroHp = gameState.hero.hp;
+            let monsterHp = gameState.monster.hp;
+
+            // Combat au tour par tour
+            while (heroHp > 0 && monsterHp > 0) {
+                // Tour du héros
+                for (let i = 0; i < gameState.hero.speed && monsterHp > 0; i++) {
+                    const damage = gameState.hero.damage + Math.floor(Math.random() * 10);
+                    monsterHp = Math.max(0, monsterHp - damage);
+                }
+
+                // Tour du monstre
+                if (monsterHp > 0) {
+                    const damage = gameState.monster.damage;
+                    const reducedDamage = Math.floor(damage * (100 - gameState.hero.resistance) / 100);
+                    const finalDamage = Math.max(1, reducedDamage);
+                    heroHp = Math.max(0, heroHp - finalDamage);
+                }
+            }
+
+            return {
+                heroWins: monsterHp === 0,
+                heroHp: heroHp,
+                monsterHp: monsterHp
+            };
+        }
+
+        // Event Listeners
+        document.getElementById('connectWallet').addEventListener('click', async () => {
+            log('Connexion au wallet...', 'info');
+            
+            try {
+                await wallet.connect();
+                gameState.connected = true;
+                
+                document.getElementById('connectionStatus').className = 'connection-dot connected';
+                document.getElementById('walletAddress').textContent = `${wallet.address.substr(0, 10)}...`;
+                document.getElementById('connectWallet').textContent = 'Connecté';
+                document.getElementById('connectWallet').disabled = true;
+                
+                log('Wallet connecté avec succès!', 'success');
+            } catch (error) {
+                log('Erreur de connexion au wallet', 'error');
+            }
+        });
+
+        document.getElementById('startGameBtn').addEventListener('click', async () => {
+            if (!gameState.connected) {
+                log('Veuillez connecter votre wallet d\'abord', 'warning');
+                return;
+            }
+
+            const betAmount = parseInt(document.getElementById('betAmount').value);
+            const targetLevel = parseInt(document.getElementById('targetLevel').value);
+
+            if (!betAmount || betAmount < 100) {
+                log('Montant de pari minimum: 100 SUI', 'warning');
+                return;
+            }
+
+            if (!targetLevel || targetLevel < 1) {
+                log('Niveau cible minimum: 1', 'warning');
+                return;
+            }
+
+            log('Démarrage du jeu...', 'info');
+
+            try {
+                // Simulation de la transaction
+                await wallet.signTransaction({ type: 'start_game', betAmount, targetLevel });
+                
+                // Initialiser le jeu
+                gameState.gameActive = true;
+                gameState.betAmount = betAmount;
+                gameState.targetLevel = targetLevel;
+                gameState.currentLevel = 1;
+                gameState.levelsCompleted = 0;
+                
+                // Générer le héros
+                gameState.hero = generateHeroStats();
+                gameState.hero.maxHp = gameState.hero.hp;
+                
+                // Générer le premier monstre
+                gameState.monster = generateMonster(1);
+                
+                document.getElementById('betSection').style.display = 'none';
+                
+                log(`Jeu commencé! Pari: ${betAmount} SUI, Objectif: Niveau ${targetLevel}`, 'success');
+                log(`Héros généré: ${gameState.hero.hp} HP, ${gameState.hero.damage} ATK`, 'info');
+                
+                updateUI();
+                
+            } catch (error) {
+                log('Erreur lors du démarrage du jeu', 'error');
+            }
+        });
+
+        document.getElementById('fightBtn').addEventListener('click', async () => {
+            log('Combat en cours...', 'info');
+            
+            const result = simulateCombat();
+            
+            gameState.hero.hp = result.heroHp;
+            gameState.monster.hp = result.monsterHp;
+            
+            if (result.heroWins) {
+                log(`Victoire! Monstre du niveau ${gameState.currentLevel} vaincu!`, 'success');
+                gameState.levelsCompleted = gameState.currentLevel;
+                
+                if (gameState.currentLevel >= gameState.targetLevel) {
+                    // Victoire totale!
+                    const payout = calculatePotentialEarnings();
+                    log(`🎉 OBJECTIF ATTEINT! Vous gagnez ${payout} SUI!`, 'success');
+                    gameState.gameActive = false;
+                    document.getElementById('betSection').style.display = 'block';
+                } else {
+                    // Niveau suivant
+                    gameState.currentLevel++;
+                    gameState.monster = generateMonster(gameState.currentLevel);
+                    log(`Niveau ${gameState.currentLevel} - Nouveau monstre!`, 'info');
+                }
+            } else {
+                if (gameState.hero.hp === 0) {
+                    log('💀 Votre héros est mort! Fin du jeu.', 'error');
+                    log(`Niveaux complétés: ${gameState.levelsCompleted}. Vous perdez votre pari.`, 'error');
+                    gameState.gameActive = false;
+                    document.getElementById('betSection').style.display = 'block';
+                } else {
+                    log(`Héros blessé! HP restants: ${gameState.hero.hp}`, 'warning');
+                }
+            }
+            
+            updateUI();
+        });
+
+        document.getElementById('retreatBtn').addEventListener('click', () => {
+            if (confirm('Voulez-vous vraiment battre en retraite? Vous perdrez votre pari.')) {
+                log('Retraite! Vous abandonnez le jeu.', 'warning');
+                gameState.gameActive = false;
+                document.getElementById('betSection').style.display = 'block';
+                updateUI();
+            }
+        });
+
+        // Améliorations
+        ['upgradeHp', 'upgradeDamage', 'upgradeSpeed', 'upgradeResistance'].forEach(id => {
+            document.getElementById(id).addEventListener('click', async () => {
+                const cost = (gameState.hero.upgrades + 1) * 1000;
+                log(`Amélioration achetée pour ${cost} SUI`, 'success');
+                
+                if (id === 'upgradeHp') {
+                    gameState.hero.maxHp += 50;
+                    gameState.hero.hp = gameState.hero.maxHp; // Soigne complètement
+                    log('HP maximum augmenté de 50 (soigné complètement)', 'success');
+                } else if (id === 'upgradeDamage') {
+                    gameState.hero.damage += 10;
+                    log('Dégâts augmentés de 10', 'success');
+                } else if (id === 'upgradeSpeed') {
+                    gameState.hero.speed += 1;
+                    log('Vitesse d\'attaque augmentée de 1', 'success');
+                } else if (id === 'upgradeResistance') {
+                    if (gameState.hero.resistance < 75) {
+                        gameState.hero.resistance += 5;
+                        log('Résistance augmentée de 5%', 'success');
+                    }
+                }
+                
+                gameState.hero.upgrades++;
+                updateUI();
+            });
+        });
+
+        // Initialisation
+        updateUI();
+    </script>
+</body>
+</html>
