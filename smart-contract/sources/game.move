@@ -13,8 +13,8 @@ module tower_defense::game {
     const BOSS_LEVEL_INTERVAL: u64 = 10;
     const UPGRADE_LEVEL_INTERVAL: u64 = 25;
     const MAX_UPGRADES: u64 = 4;
-    const BASE_MONSTER_HP: u64 = 120;
-    const BASE_MONSTER_DAMAGE: u64 = 25;
+    const BASE_MONSTER_HP: u64 = 30;
+    const BASE_MONSTER_DAMAGE: u64 = 15;
     const LEVEL_SCALING_FACTOR: u64 = 100; // Pour le calcul des gains
     const MONSTER_SCALING_RATE: u64 = 10 ; // +10% par niveau 
     
