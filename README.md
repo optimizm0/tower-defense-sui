@@ -1,3 +1,9 @@
+[![GitHub stars](https://img.shields.io/github/stars/USERNAME/tower-defense-sui)](https://github.com/USERNAME/tower-defense-sui/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/USERNAME/tower-defense-sui)](https://github.com/USERNAME/tower-defense-sui/network)
+[![GitHub issues](https://img.shields.io/github/issues/USERNAME/tower-defense-sui)](https://github.com/USERNAME/tower-defense-sui/issues)
+[![Live Demo](https://img.shields.io/badge/demo-online-green)](https://USERNAME.github.io/tower-defense-sui)
+
+
 # tower-defense-sui
 Basic gambling tower defense game on SUI
 AI-generated
