@@ -397,16 +397,18 @@ module tower_defense::game {
             return (0, bet_amount) // Maison garde tout
         };
 
-        // Formule agressive : paiement = bet * (1 + levels/50) 
-        let base_multiplier = 100 + levels_completed ; // 1% par niveau
-        let gross_payout = (bet_amount * base_multiplier) / 100;
+        // Formule agressive : paiement = bet * (1 + levels/100)
+        let base_multiplier = 1.0 + (levels_completed as f64 / 100.0); // 1% par niveau
+        let gross_payout = bet_amount as f64 * base_multiplier;
         
-        // Appliquer house edge
-        let house_take = (gross_payout * house_edge) / 100;
-        let net_payout = if (gross_payout > house_take) {
+        // Appliquer house edge (en pourcentage)
+        let house_take = gross_payout * (house_edge as f64 / 100.0);
+        
+        // Gain net (jamais négatif)
+        let net_payout = if gross_payout > house_take {
             gross_payout - house_take
         } else {
-            0
+            0.0
         };
 
         // S'assurer que le paiement ne dépasse pas le bet * 1.5 max
