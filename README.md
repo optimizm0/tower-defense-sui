@@ -1,5 +1,6 @@
 # tower-defense-sui
 Basic gambling tower defense game on SUI
+AI-generated
 
 # 🏰 Tower Defense - Sui Blockchain Game
 
@@ -15,7 +16,7 @@ Tower Defense est un jeu de stratégie et de paris décentralisé construit sur 
 
 ### **Mécaniques Principales**
 - 🛡️ **Héros personnalisé** avec HP, dégâts, vitesse d'attaque et résistance
-- 👹 **Monstres évolutifs** qui deviennent 25% plus forts à chaque niveau
+- 👹 **Monstres évolutifs** qui deviennent 10% plus forts à chaque niveau
 - 👑 **Boss fights** tous les 10 niveaux (4x plus puissants)
 - 💰 **Système de paris** avec gains basés sur la performance
 - ⬆️ **Améliorations** disponibles tous les 25 niveaux
@@ -114,10 +115,10 @@ Ouvrez [http://localhost:8000](http://localhost:8000) dans votre navigateur.
   - ⚔️ +10 Dégâts
   - ⚡ +1 Vitesse d'attaque
   - 🛡️ +5% Résistance
-- Maximum 5 améliorations par partie
+- Maximum 4 améliorations par partie
 
 ### **Étape 5: Gains**
-- **Succès**: Atteignez votre niveau cible → Gains = `Pari × (1 + Niveaux/200) - House Edge (5%)`
+- **Succès**: Atteignez votre niveau cible → Gains = `Pari × (1 + Niveaux/50) - House Edge (5%)`
 - **Échec**: Héros mort → Vous perdez votre pari
 - **Retraite**: Abandonner → Vous perdez votre pari
 
@@ -130,7 +131,7 @@ Ouvrez [http://localhost:8000](http://localhost:8000) dans votre navigateur.
 - Boss fights = moments critiques
 
 ### **🏦 Avantage de la Maison**
-- Progression agressive des monstres (+25% par niveau)
+- Progression des monstres (+10% par niveau)
 - Stats de héros faibles au début
 - House edge de 5%
 - Gains plafonnés à 150% du pari
@@ -139,7 +140,7 @@ Ouvrez [http://localhost:8000](http://localhost:8000) dans votre navigateur.
 
 ### **Calcul des Gains**
 ```
-Multiplicateur = 1 + (Niveaux Complétés / 200)
+Multiplicateur = 1 + (Niveaux Complétés / 50)
 Gain Brut = Pari × Multiplicateur
 House Edge = Gain Brut × 5%
 Gain Net = Gain Brut - House Edge
@@ -149,20 +150,20 @@ Gain Final = Min(Gain Net, Pari × 1.5)
 ### **Exemples**
 | Pari | Niveaux | Gain Brut | House Edge | Gain Net | Profit Maison |
 |------|---------|-----------|------------|----------|---------------|
-| 1000 | 5       | 1025      | 51         | 974      | 26            |
-| 1000 | 10      | 1050      | 53         | 997      | 3             |
-| 1000 | 20      | 1100      | 55         | 1045     | -45           |
-| 1000 | 50      | 1250      | 63         | 1187     | -187          |
+| 100  | 5       | 105       | 10.5       | 94.5     | +5.5          |
+| 100  | 10      | 110       | 11         | 99       | +1            |
+| 100  | 20      | 120       | 12         | 108      | -8            |
+| 100  | 50      | 150       | 15         | 135      | -35           |
 
 ## 🔧 **Configuration Avancée**
 
 ### **Smart Contract**
 Variables ajustables dans `game.move`:
 ```move
-const MONSTER_SCALING_RATE: u64 = 25;     // +25% par niveau
+const MONSTER_SCALING_RATE: u64 = 10;     // +10% par niveau
 const BOSS_LEVEL_INTERVAL: u64 = 10;      // Boss tous les 10 niveaux
 const UPGRADE_LEVEL_INTERVAL: u64 = 25;   // Upgrades tous les 25 niveaux
-const MAX_UPGRADES: u64 = 5;              // Maximum 5 upgrades
+const MAX_UPGRADES: u64 = 4;              // Maximum 4 upgrades
 ```
 
 ### **Interface Web**
